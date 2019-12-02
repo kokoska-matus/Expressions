@@ -1,4 +1,4 @@
-﻿using Expressions.Enums;
+using Expressions.Enums;
 using Expressions.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,35 @@ namespace Expressions.Domain
 {
     public class Expression
     {
+        /// <summary>
+        /// First partial expression, that needs to be solved separately, before solving this expression
+        /// </summary>
         public Expression ExpressionA { get; set; }
+
+        /// <summary>
+        /// Second partial expression, that needs to be solved separately, before solving this expression
+        /// </summary>
         public Expression ExpressionB { get; set; }
+
+        /// <summary>
+        /// Defines mathematical operation, that needs to be executed between the results of ExpressionA and ExpressionB
+        /// </summary>
         public Operation Operation { get; set; }
+
+        /// <summary>
+        /// Position of the operator character in the expression string (FullExpression) 
+        /// </summary>
         private int? OperatorPosition { get; set; }
+
+        /// <summary>
+        /// String that is going to be validated, converted to the expression and be solved
+        /// </summary>
         private string FullExpression { get; set; }
 
+        /// <summary>
+        /// Constructor includes validation of the expression string as well as defining the sub expressions and the operation if possible 
+        /// </summary>
+        /// <param name="expression">String representation of the Expression</param>
         public Expression(string expression)
         {
             //remove all whitespace or set expression to 0 if empty
@@ -25,6 +48,9 @@ namespace Expressions.Domain
             Validate();
         }
 
+        /// <summary>
+        /// Validates the expression srings and handles error messages
+        /// </summary>
         private void Validate()
         {
             if(FullExpression.Count(c=>c=='(')!= FullExpression.Count(c => c == ')'))
@@ -47,6 +73,10 @@ namespace Expressions.Domain
             }
         }
 
+        /// <summary>
+        /// Calculates the actual result of the expression
+        /// </summary>
+        /// <returns></returns>
         public float GetResult()
         {
             float result;
@@ -68,6 +98,10 @@ namespace Expressions.Domain
             return result;
         }
 
+        /// <summary>
+        /// If none further partial expressions exist, this function tries to convert the expression string to float value
+        /// </summary>
+        /// <returns></returns>
         private float GetNumberValue()
         {
             FullExpression = FullExpression.Replace(',', '.');
@@ -80,6 +114,12 @@ namespace Expressions.Domain
             return result;
         }
 
+        /// <summary>
+        /// Executes a mathematical operation defined in Operation parameter, between two given numbers
+        /// </summary>
+        /// <param name="a">First number</param>
+        /// <param name="b">Second number</param>
+        /// <returns></returns>
         private float ExecuteOperation(float a, float b)
         {
             switch (Operation)
@@ -108,6 +148,11 @@ namespace Expressions.Domain
             }
         }
 
+        /// <summary>
+        /// Checks whether given character is corensponding to a mathematical operator
+        /// </summary>
+        /// <param name="character">Given character</param>
+        /// <returns></returns>
         private Operation? TryConvertToOperation(char character)
         {
             switch (character)
@@ -129,6 +174,9 @@ namespace Expressions.Domain
             }
         }
 
+        /// <summary>
+        /// Finds the operation, with a lowest priority in the expression, assings it to the parameter together with its position in the string
+        /// </summary>
         private void SetOperation()
         {
             var availableOperatorPositiions = FindAvailableOperatorPositiions();
@@ -160,6 +208,9 @@ namespace Expressions.Domain
             }
         }
 
+        /// <summary>
+        /// Tries to separate the expression to partial expressions ExpressionA and Expression B, based on the position of the lowest priority operator
+        /// </summary>
         private void SetSubExpressions()
         {
             if (Operation != Operation.None || OperatorPosition.HasValue)
@@ -169,6 +220,10 @@ namespace Expressions.Domain
             }
         }
 
+        /// <summary>
+        /// Finds the last of each operator in the expression, that is not surrounded by the parethesis. 
+        /// </summary>
+        /// <returns></returns>
         private Dictionary<Operation, int> FindAvailableOperatorPositiions()
         {
             int leftParenthesesCount = 0;
@@ -193,7 +248,7 @@ namespace Expressions.Domain
                         {
                             if (availableOperatorPositiions.ContainsKey(operation.Value))
                             {
-                                //the last occurence of any operator is the most important
+                                //the last occurence of any operator has the lowest priority and that's what we need
                                 availableOperatorPositiions[operation.Value] = i;
                             }
                             else
