@@ -40,7 +40,7 @@ namespace Expressions.Domain
                 {
                     throw new ExpressionException("These two operators cannot be followed directly by each other: " + character + nextCharacter);
                 }
-                if(character == '(' && nextCharacter == '(')
+                if(character == '(' && nextCharacter == ')')
                 {
                     throw new ExpressionException("The expression cannot contain empty parethesis");
                 }
